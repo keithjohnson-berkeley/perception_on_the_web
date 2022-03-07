@@ -1,10 +1,15 @@
 var index;  // global variable to track trial number
 var isi;  // interstimulus interval
 var iti;  // intertrial interval
-var order = new Array();
+var fast_response = 500;   // what is a too fast response? Any thing less than this in ms
+var slow_response;  // what is a too slow response? Any thing longer than this in ms
+var order = new Array();  // the order in which the trials will be played
 var file1 = new Array();  // read files to play in a separate js file
-var file2 = new Array();
-var ready_for_answer ;  // toggle this to make keypresses available
+var file2 = new Array();  
+var option1 = new Array();  // response labels for 'z' response in 'cat' experiment
+var option2 = new Array(); // response lables for 'm' response
+var correct = new Array(); // correct answers for feedback
+var ready_for_answer ;  // toggle this when it is appropriate to make a response
 var audioduration;  // get duration of file 1, for 2 interval isi calculation
 var wait_time;    // 2 interval isi time (file1 onset to file2 onset)
 var start_time = null;  // variables for calculating reaction time
@@ -13,10 +18,11 @@ var mystatus;
 var timerid;   // a global timer object
 var audio_load_time;   // global to keep load-time stats
 
-// type: can be 'id', 'ax', 'r', or 'cr'
-//     'id' - a single file is played, and response must be 'z' or '/'
+// type: can be 'id', 'ax', 'cat', 'r', or 'cr'
+//     'id' - a single file is played, and response must be 'z' or 'm'
+//     'cat' - a single file is played, response 'z' or 'm', button labels are read from stimulus js file
 //     'r'  - a single file is played, and response is 1-7
-//     'ax' - two files are played, and response must be 'z' or '/'
+//     'ax' - two files are played, and response must be 'z' or 'm'
 //     'cr' - two files are played, and response is 1-7 
 // rflag: is true|false
 //     true means randomize the order
@@ -24,14 +30,22 @@ var audio_load_time;   // global to keep load-time stats
 // new_isi: is the pause, in milliseconds, between file1 and file2 in an ax or cr type
 // new_iti: is the pause, (after a response is entered) between trials 
 
-function load(type,rflag,new_iti=2000,new_isi=500) {  
-    ready_for_answer = false;
+function load(rflag,new_iti=2000,new_isi=500, new_fast_response=200, new_slow_response=4000) {  
     document.getElementById("total").innerHTML = file1.length;
     index = 0;
     isi = new_isi;
     iti = new_iti;
-    key_listener(type);  // start monitoring for key presses
+    console.log(rflag, "fast_response=",fast_response, "new_fast_response=",new_fast_response);
+    fast_response = new_fast_response;
+    console.log("fast_response=",fast_response, "new_fast_response=",new_fast_response);
+    slow_response = new_slow_response;
     shuffle_order(rflag);  // sequential order
+}
+
+function play_first_trial(type,x) {  //  this is called from a "start" button
+    x.style.display = 'none';  // hide the button
+    ready_for_answer = false;
+    key_listener(type);
     play_trial(type);
 }
 
@@ -46,7 +60,7 @@ function key_listener(type) {  // define how to handle response
 	    code = e.keyCode;	    
 	}
 
-	console.log("key pressed", e.charCode, code, 'type = ', type); 
+//	console.log("key pressed", e.charCode, code, 'type = ', type); 
 	if (!ready_for_answer) {
 	    mystatus = "early_response";
 	    document.getElementById("wr").style.backgroundColor = "red";
@@ -57,26 +71,41 @@ function key_listener(type) {  // define how to handle response
 		document.getElementById("wr").innerHTML = " Please wait for the sound to play ";
 	    }
 	} else if ( ((e.charCode > 48 && e.charCode <  56) && (type=='r' || type=='cr')) ||  // numbers 1-7
-		    ((e.charCode== 122 || e.charCode==109) && (type=='id' || type=='ax')) ) { // 'z' or 'm'	
+		    ((e.charCode== 122 || e.charCode==109) && (type=='id' || type=='ax' || type=='cat')) ) { // 'z' or 'm'	
 	    end_time = new Date();
 	    ready_for_answer = false;
 	    rt = end_time - start_time;  // this is in milliseconds
 	    dur = audioduration * 1000;  // convert to milliseconds
 
-	    if (rt < 200) {  // check for overly fast responses
+	    if (type=="cat") {  // save the button labels in 'cat' experiments
+		if (e.charCode==122) {	code = option1[order[index]];}
+		if (e.charCode==109) {  code = option2[order[index]];}
+	    }
+
+	    if (rt < fast_response) {  // check for overly fast responses
 		mystatus = "fast_response";
 		document.getElementById("wr").style.backgroundColor = "red";
 		document.getElementById("wr").style.color="white";
 		document.getElementById("wr").innerHTML = " That resposne was too fast ";
+		ready_for_answer= false;  // no more responses
 	    }
 
-	    if (rt-dur > 5000) {  // check for overly slow responses
+	    if (rt-dur > slow_response) {  // check for overly slow responses
 		mystatus = "slow_response";
 		document.getElementById("wr").style.backgroundColor = "red";
 		document.getElementById("wr").style.color="white";
-		document.getElementById("wr").innerHTML = " That response was a too slow ";
+		document.getElementById("wr").innerHTML = " That response was too slow ";
 	    }
 
+	    if (typeof correct != "undefined" && correct.length == file1.length) {
+		if (correct[order[index]].includes(code) != true) {
+		    mystatus = "incorrect_response";
+		    document.getElementById("wr").style.backgroundColor = "red";
+		    document.getElementById("wr").style.color="white";
+		    document.getElementById("wr").innerHTML = " That response was incorrect";
+		}
+	    }
+    	    
 	    document.getElementById("key").innerHTML = code; // show the response
 	    document.getElementById("key").style.backgroundColor = "pink";
 
@@ -101,7 +130,7 @@ function key_listener(type) {  // define how to handle response
 	    setTimeout(function () {finish(type)},iti);  // see if we have finished - go to next
 	} else {  // warn about using the wrong keys
 	    mystatus = "unallowed_response";
-	    if (type=='id' || type=='ax') {
+	    if (type=='id' || type=='ax' || type=='cat') {
 		warning = " Press either 'z' or 'm' ";
 	    } else {
 		warning = " Press a number between 1 and 7 ";
@@ -116,16 +145,20 @@ function key_listener(type) {  // define how to handle response
 function play_trial(type) {
     if (type=="ax" || type=="cr") {
 	play_2_interval();  // play the first trial
-    } else if (type=="id" || type=="r") {
-	play_1_interval();
+    } else if (type=="id" || type=="r" || type=='cat') {
+	play_1_interval(type);
     } 
 }
 
-function play_1_interval() {  // one audio file is played
+function play_1_interval(type) {  // one audio file is played
     audioduration = 0;
     var count = 0;
     var loop = 5;  // interval in ms to check for file is loaded
     mystatus= "OK";
+    if (type=='cat') {
+	document.getElementById("response1").innerHTML = option1[order[index]];
+	document.getElementById("response2").innerHTML = option2[order[index]];
+    }
     document.getElementById("f1").style.backgroundColor = "yellow";
     document.getElementById("wr").innerHTML = "";
     play_audio(file1[order[index]]);

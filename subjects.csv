@@ -1,3 +1,2 @@
-exp,subj,list,device,age,gender,gen2,race,race2, birth_order,town,state,country,town2,state2, country2, age2, town3, state3, country3, age3, town4, state4, country4, age4, town5, state5, country5, age5, town6, state6, country6, age6, town7, state7, country7,age7, L1,L2,L2age,L3, L3age, L4, L4age, L5, L5age, best, multisocial, relatives,moveon,occupation,salary
-#,diffs,test5c939c8d0d9f1,test,speaker,56-60,male,,white,,oldest_sib,Woodward,OK,USA,Berkeley,CA,USA,49,,,USA,,,,USA,,,,USA,,,,USA,,,,USA,,English,,,,,,,,,3,rel_never,ed
-#,diffs,test5c93bfe2da008,test,ear_buds,21-25,male,,white,,oldest_sib,Woodward,OK,USA,norman,ok,USA,5,berkeley,ca,USA,45,,,USA,,,,USA,,,,USA,,,,USA,,English,Chinese,50,,,,,,,3,rel_never,ed
+hash,exp,subj,list,device,age,gender,race,birth_order,English,Eng_variety,languages,relatives,occupation
+#,CAT,26225154fb4590,2,ear_buds,61-70,male,white,oldest_sib,native,from Oklahoma,None,rel_never,ed

@@ -1,8 +1,8 @@
 <?php
 function safe_post_param($p, $maxlen) {
-  if (isset($_POST[$p]) && preg_match("/^[a-zA-Z0-9 \.-_]{1,$maxlen}$/", $_POST[$p])) {
+  if (isset($_POST[$p]) && preg_match("/[\w\s\+()\.-]{1,$maxlen}/", $_POST[$p])) {
     $val = $_POST[$p]; 
-  } else { $val = '<invalid>'; }
+  } else { $val = '<invalid>';}
   return $val;
 }
 
@@ -21,12 +21,13 @@ if (isset($_GET['n']) && preg_match("/^\w+$/", $_GET['n'])) {
 $form_params['subject'] = 20;
 $form_params['trial'] = 5;
 $form_params['list'] = 5;
-$form_params['file1'] = 30;
+$form_params['file1'] = 80;
 if ($type=='ax' || $type =='cr') {$form_params['file2'] = 30; }
 $form_params['filedur'] = 10;
 $form_params['loadtime'] = 10;
 $form_params['mystatus'] = 20;
-$form_params['response'] = 10;
+$form_params['response'] = 40;
+if ($type=='cat') {$form_params['option'] = 400; }
 $form_params['rt'] = 10;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

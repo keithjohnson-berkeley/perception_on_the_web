@@ -6,7 +6,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
    $subj = $_POST["subj"];
    $data = "#";
    foreach($_POST as $key=>$value) {      // we don't have to know the keys
-       $data = $data . "," . $value;     // just save whatever is sent
+   	$value = str_replace(',', '', $value);  // remove commas 
+	$data = $data . "," . $value;     // just save whatever is sent
    }
    $data = $data . "\n";
 
@@ -33,8 +34,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <p>Thanks for your participation.</p>
 
-<p>Your unique identifier, to enter in mturk for payment, is: 
+<p>Your unique identifier, to enter for payment, is: 
 <br><br>
 <b> <?php echo $subj; ?> </b></p>
-
+</body>
+</html>
 
