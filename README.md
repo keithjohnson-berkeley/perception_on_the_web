@@ -1,6 +1,6 @@
 # Speech perception on the web
 
-**This description of the software is also available in the file readme.pdf**
+**This description of the software is also available in the file README.PDF**
 
 The library and the examples in this package implement web-based versions of a number of different types of experiments that are commonly used by researchers who study speech perception and psycholinguistics.  
 
