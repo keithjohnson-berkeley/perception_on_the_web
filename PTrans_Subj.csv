@@ -1,0 +1,7 @@
+datafile,exp,subj,prID,list,age,gender,race,siblings,birth_order,English,Eng_variety,languages,occupation
+
+PTrans_Data.csv,PTrans,1630929f7a3d05,0,1,18-20,lemur,uait,no,,adult,who from california,none,math
+PTrans_Data.csv,PTrans,163092aba85794,666,1,61-70,d,d,yes,middle_sib,native,ddddd,d,military
+PTrans_Data.csv,PTrans,163092c8d034df,55pr,1,46-50,any,any,no,,early,learned early,x; y's; -z-,legal
+PTrans_Data.csv,PTrans,163177ad2ac6b0,0,1,18-20,m,w,no,,early,none,arts
+PTrans_Data.csv,PTrans,163177bc096955,oss1,1,18-20,male,caucasian,yes,oldest_sib,native,none,legal

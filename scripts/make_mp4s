@@ -1,0 +1,29 @@
+#! /usr/bin/perl
+use File::Basename;
+
+$csvname = $ARGV[0];
+
+open $in, '<:encoding(UTF-8)',$csvname or die $1;
+
+while ($line = <$in>) {
+
+    print($line);
+    ($outfile,$imagefile, $imagedur, $soundfile, $snd_offset) = split(/,/,$line);
+    
+    $sf = 16000;
+    # condition soundfile (set sampling rate, 1 channel, amplitude normalize)
+    $info = system("sox \"$soundfile\" temp/temp.wav channels 1 rate $sf norm -3");
+
+    # make a silent interval -- no input (-n)
+    $info = system("sox -n -r $sf -c 1 temp/silence.wav trim 0.0 $snd_offset");
+    
+    # add silence to front of sound to produce sound track of AV stimulus
+    $info = system("sox temp/silence.wav temp/temp.wav temp/soundtrack.wav");
+
+    # make a movie of one image with a sound track  -- typical huge ffmpeg command
+    $info = system("ffmpeg -loop 1 -i \"$imagefile\" -i temp/soundtrack.wav ".
+		   "-shortest -fflags +shortest -c:v libx264 ".
+		   "-vf \"drawbox=c=\'#FFFFFF\':t=fill:enable=\'gte(t\,$imagedur)\'\" ".
+		   "-pix_fmt yuv420p ".
+		   "-c:a aac -max_interleave_delta 100M -y \"$outfile\" ");
+}

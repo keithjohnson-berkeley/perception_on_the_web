@@ -1,0 +1,36 @@
+#! /usr/bin/perl
+use strict;
+use File::Basename;
+
+my $fullname   = $ARGV[0];
+my $name = basename($fullname,".csv");
+
+my $inname = $fullname;
+my $outname = $name . '.js';
+
+my @header;
+my @elements;
+
+open my $in, '<:encoding(UTF-8)', $inname or die $!;
+open my $out,'>:utf8', $outname or die $!;
+
+# first get the header
+my $line = <$in>;
+$line =~ s/\s+//g;    # remove whitespace
+if ($line !~ 'file1') {  # require at least file1
+	print "the first line must be a header with at least one entry \"file1\"";
+	exit();
+}
+@header = split(/,/,$line);  
+
+# then process the csv, writing the js file
+my $i=0;
+while ($line = <$in>) {
+    $line =~ s/\s+//g;  # remove whitespace
+    @elements = split(/,/,$line);
+    for (my $j=0; $j <= $#header; $j++) {
+	 print $out $header[$j],"[$i]=\'",$elements[$j],"\'; ";
+    }
+    print $out "\n";
+    $i++;
+}

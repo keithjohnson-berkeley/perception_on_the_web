@@ -1,0 +1,5 @@
+SubjID,prID,block,trial,file1,status,response,rt
+16335e2461eb2b,0,1,0,images/dance_768x512.jpg,OK,dance,1075
+16335e2461eb2b,0,1,1,images/Acanthus14_768x512.jpg,OK,thingys,1714
+16335e2461eb2b,0,1,2,images/blue_crab_768x512.jpg,OK,crab,1177
+16335e2461eb2b,0,1,3,images/ChineseFigurines_768x512.jpg,OK,dolls,1544

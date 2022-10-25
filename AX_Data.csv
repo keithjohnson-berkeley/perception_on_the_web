@@ -1,0 +1,7 @@
+SubjID,block,trial,file1,file2,filedur,loadtime,status,response,rt
+162f42c7e7689e,1,0,sounds/type_0,sounds/type_40,570,0,OK,different,1991162f9d3ff45f1e,1,0,sounds/type_20,sounds/type_80,569,20,OK,different,925
+162f9d3ff45f1e,1,1,sounds/type_60,sounds/type_40,570,0,incorrect_response,same,741
+162f9d3ff45f1e,1,2,sounds/type_20,sounds/type_40,570,0,OK,different,720
+162f9d3ff45f1e,1,3,sounds/type_20,sounds/type_60,568,0,incorrect_response,same,591
+162f9d3ff45f1e,1,4,sounds/type_20,sounds/type_20,569,0,OK,same,590
+162f9d3ff45f1e,1,5,sounds/type_0,sounds/type_60,568,0,OK,different,470

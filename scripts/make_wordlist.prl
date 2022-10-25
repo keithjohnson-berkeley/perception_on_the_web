@@ -1,0 +1,23 @@
+#! /usr/bin/perl
+use strict;
+use File::Basename;
+
+my $fullname   = $ARGV[0];
+my $name = basename($fullname,".csv");
+
+my $inname = $fullname;
+my $outname = $name . '.js';
+
+my $audiofile; my $text1; my $text2; my $trial, my $correct;
+
+open my $in, '<:encoding(UTF-8)', $inname or die $!;
+open my $out,'>:utf8', $outname or die $!;
+
+my $i=0;
+while (my $line = <$in>) {
+    chomp $line;
+    ($audiofile, $text1, $text2, $correct) = split(/,/,$line);
+    if ($audiofile =~ '(.*)\.wav') {$audiofile=$1;}
+    print $out "file1[$i] = \"$audiofile\"; option1[$i] = \"$text1\"; option2[$i]= \"$text2\"; correct[$i]=\"$correct\";\n";
+    $i++;
+}

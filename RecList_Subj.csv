@@ -1,0 +1,2 @@
+datafile,exp,subj,prID,list,age,gender,race,siblings,birth_order,English,Eng_variety,languages,occupation
+RecList_Data.csv,RecList,16335e100ab582,0,1,18-20,male,white,yes,oldest_sib,native,none,educ

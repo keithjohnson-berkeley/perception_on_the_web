@@ -1,0 +1,3 @@
+datafile,exp,subj,list,age,gender,race,siblings,birth_order,English,Eng_variety,languages,occupation
+ATrans_Data.csv,ATrans,162f3e1760bfcb,1,18-20,?,black,no,,native,from home,none,IT
+ACat_Data.csv,ACat,162f4083b861a0,1,61-70,m,white,yes,oldest_sib,native,who have moved around the western US,none,educ
