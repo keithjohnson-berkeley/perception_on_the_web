@@ -137,7 +137,7 @@ Contact Ray Gonzalez raygon@mit.edu or Kevin J. P. Woods kwoods@mit.edu
     // render boilerplate instruction text
     $('<div/>', {
       class: 'hc-instruction',
-      html: 'When you hit <b>Play</b>, you will hear three sounds separated by silences.'
+      html: 'When you click <b>Play</b>, you will hear three sounds separated by silences.'
     }).appendTo($('#hc-container'));
     $('<div/>', {
       class: 'hc-instruction',
@@ -230,7 +230,7 @@ Contact Ray Gonzalez raygon@mit.edu or Kevin J. P. Woods kwoods@mit.edu
     // render boilerplate instruction text
     $('<div/>', {
       class: 'hc-calibration-instruction',
-      text: 'You must be wearing headphones to do this HIT!'
+      text: 'You must be wearing headphones to continue.'
     }).appendTo($('#hc-container'));
     $('<div/>', {
       class: 'hc-calibration-instruction',
