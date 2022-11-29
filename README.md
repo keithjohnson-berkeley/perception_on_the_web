@@ -1,8 +1,6 @@
 # Speech perception on the web
 
-**This description of the software is also available in the file README.PDF**
-
-The library and the examples in this package implement web-based versions of a number of different types of experiments that are commonly used by researchers who study speech perception and psycholinguistics.  
+The library and examples in this package implement web-based versions of a number of different types of experiments that are commonly used by researchers who study speech perception and psycholinguistics.    
 
 The package includes several example experiment paradigms:
 
@@ -14,7 +12,10 @@ The package includes several example experiment paradigms:
 
 4. **Audio paired comparison** presents audio files in pairs for a comparative 2AFC judgment; for instance whether the audio files are the “same” or “different”.  In this paradigm as well as in the categorization paradigm, a correct answer can be specified and the listener is warned when their answer is incorrect.
 
-5. **Video Categorization** presents movie clips (mpeg4 files) in a two alternative forced choice (2AFC) paradigm.  Together with the helper script ‘make_mp4s’ VCat.php can be used to  implement the cross-modal priming paradigm by presenting a brief image timed to a sound file as a single downloaded movie, thus controlling the interstimulus interval between the audio and visual components of a cross-modal priming paradigm.
+5. **Video categorization** presents movie clips (mpeg4 files) in a two alternative forced choice (2AFC) paradigm.  Together with the helper script ‘make_mp4s’ VCat.php can be used to  implement the cross-modal priming paradigm by presenting a brief image timed to a sound file as a single downloaded movie, thus controlling the interstimulus interval between the audio and visual components of a cross-modal priming paradigm.
+
+6. **Word list recording** is used to collect audio recordings from the participant’s computer microphone.  A list of words or sentences is presented visually one at a time, and the listener is requested to read the items aloud.  The script records for about 2 seconds per word, and then proceeds on to the next word.  Audio recordings are transmitted back to the experimenter’s server in a folder called "audio_recordings". 
+
 
 ## Requirements
 
@@ -36,7 +37,9 @@ This link points to a server (https://linguistics.berkeley.edu), and a page on t
 
 	https://myserver.edu/~mydirectory/audiocheck.php?list=1&next=AX.php
 
-An example experiment.  An experiment is implemented as an interlinked set of pages and supporting data files. Information is passed from one page to the next through hidden forms and URL variables.  To make your own experiment you can take one of the example paradigms in the package and edit the files to suit your needs.  
+## An example experiment.  
+
+An experiment is implemented as an interlinked set of pages and supporting data files. Information is passed from one page to the next through hidden forms and URL variables.  To make your own experiment you can take one of the example paradigms in the package and edit the files to suit your needs.  
 
 For example, the flow of the example Audio paired comparison experiment is:
 
@@ -148,6 +151,7 @@ So:
 
 
 ## AX_trials.php 
+
 The main .php file that runs the AX trials starts with a <?php … ?> block that includes the ‘AX\_params.inc’ file to get the variables described above. The include file is needed by process.php and Questionnaire.php, as well as being needed here in AX\_trials.php, so to avoid passing the name of the include file on the open web we pass the first part of the file name, and use the template ‘\_params.inc’ to complete the filename.  The starting php block also defines \$stimulus_list from a filename template variable \$template, that is defined in the include file.  The \$stimulus_list variable is defined by replacing the ‘##’ characters in the template with the contents of \$list (which can be any characters, but for us is usually just a number).  If the experiment is being run on Prolific, a shortened version of the subject’s prolific ID is also passed.  On other platforms the prID is 0.
 
 	<?php
@@ -243,6 +247,7 @@ When all of the trials have been completed the *Questionnaire.php* is presented 
 	</html>
 
 ##PTrans_trials.php  
+
 The picture transcription task (*PTrans.php*) also has a ‘trials’ php file and the contrast between ‘PTrans\_trials.php’ and ‘AX\_trials.php’ may be instructive.  The include file (‘PTrans\_params.inc’) defines \$stim_type as ‘image’, and \$resp_type as ‘text’, so the trials php file must have some different elements.
 
 The starting <?php … ?> block is the same as in the AX experiment except that we specify a different parameter file. With \$n = ‘PTrans’ the include file will be ‘PTrans_params.inc’.
