@@ -104,12 +104,13 @@ function key_listener() { // define how to handle responses
 	if (debug) {console.log("e.key= ",e.key, ", e.code= ",e.code, " key = ",key); }
 	var dur;
 	var ans;
+	var W;
 	
 	if (!ready_for_answer) {
 	    mystatus = "early_response";
-	    if (warn = $('#warn')) { 
-		warn.css({"backgroundColor": "red", "color":"white"});;
-		warn.html( " Please wait ");
+	    if (W = $('#warn')) { 
+		W.css({"backgroundColor": "red", "color":"white"});;
+		W.html( " Please wait ");
 	    }
 	} else if (resp_type.includes('2AFC') || resp_type=='rating') {   // single key response types
 	    if ((resp_type=='rating' && (key >= 1 && key <= 7)) ||  // numbers 1-7
@@ -127,27 +128,27 @@ function key_listener() { // define how to handle responses
 
 		if (rt < fast_response) {  // check for overly fast responses
 		    mystatus = "fast_response";
-		    if (warn = $('#warn')) { 
-			warn.css({"backgroundColor": "red", "color":"white"});;
-			warn.html( " That response was too fast ");
+		    if (W = $('#warn')) { 
+			W.css({"backgroundColor": "red", "color":"white"});;
+			W.html( " That response was too fast ");
 		    }
 		    ready_for_answer= false;  // no more responses
 		}
 		   
 		if (rt-dur > slow_response) {  // check for overly slow responses
 		    mystatus = "slow_response";
-                    if (warn = $('#warn')) {
-                        warn.css({"backgroundColor": "red", "color":"white"});;
-                        warn.html( " That response was too slow ");
+                    if (W = $('#warn')) {
+                        W.css({"backgroundColor": "red", "color":"white"});;
+                        W.html( " That response was too slow ");
                     }
 		}
 
 		if (typeof correct != "undefined" && correct.length == file1.length) {
 		    if (correct[order[index]].includes(ans) != true) {
 			mystatus = "incorrect_response";
-			if (warn = $('#warn')) {
-                            warn.css({"backgroundColor": "red", "color":"white"});;
-                            warn.html( " That response was incorrect ");
+			if (W = $('#warn')) {
+                            W.css({"backgroundColor": "red", "color":"white"});;
+                            W.html( " That response was incorrect ");
 			}
 		    }
 		}
@@ -192,9 +193,9 @@ function key_listener() { // define how to handle responses
 		} else {
 		    warning = " Press a number between 1 and 7 ";
 		}
-		if (warn = $("#warn")) {
-		    warn.css({"backgroundColor":"red", "color":"white"});
-		    warn.html(warning);
+		if (W = $("#warn")) {
+		    W.css({"backgroundColor":"red", "color":"white"});
+		    W.html(warning);
 		}
 	    }
 	} else if (resp_type=="text"){
