@@ -12,14 +12,14 @@ The package includes several example experiment paradigms:
 
 4. **Audio paired comparison** presents audio files in pairs for a comparative 2AFC judgment; for instance whether the audio files are the “same” or “different”.  In this paradigm as well as in the categorization paradigm, a correct answer can be specified and the listener is warned when their answer is incorrect.
 
-5. **Video categorization** presents movie clips (mpeg4 files) in a two alternative forced choice (2AFC) paradigm.  Together with the helper script ‘make_mp4s’ VCat.php can be used to  implement the cross-modal priming paradigm by presenting a brief image timed to a sound file as a single downloaded movie, thus controlling the interstimulus interval between the audio and visual components of a cross-modal priming paradigm.
+5. **Video categorization** presents movie clips (mpeg4 files) in a two alternative forced choice (2AFC) paradigm.  Together with the helper scripts 'resize.py', 'make_cross_modal_mp4s', and ‘make_mp4s’ VCat.php can be used to implement the cross-modal priming paradigm by presenting a brief image timed to a sound file as a single downloaded movie, thus controlling the interstimulus interval between the audio and visual components of a cross-modal priming paradigm.  Of course, the script can collect responses to movies of any type.
 
 6. **Word list recording** is used to collect audio recordings from the participant’s computer microphone.  A list of words or sentences is presented visually one at a time, and the listener is requested to read the items aloud.  The script records for about 2 seconds per word, and then proceeds on to the next word.  Audio recordings are transmitted back to the experimenter’s server in a folder called "audio_recordings". 
 
 
 ## Requirements
 
-You must be able to host your experiment on a web server that can serve \*.php files, and audio and video files. Helper scripts in this package are provided for creating or modifying stimuli and assembling stimulus list files and are written in perl and python, and use applications for manipulation of media files including *sox, lame, imagemagick, and ffmpeg*.  
+You must be able to host your experiment on a web server that can serve \*.php files, and audio and video files. Helper scripts in this package are provided for creating or modifying stimuli and assembling stimulus list files and are written in perl and python, and use applications for manipulation of media files including *sox, lame, imagemagick, and ffmpeg*.  At Berkeley we use the "open computing facility" - ocf.berkeley.edu - to host experiments.
 
 ## Running Subjects
 
@@ -246,7 +246,7 @@ When all of the trials have been completed the *Questionnaire.php* is presented 
 	</body>
 	</html>
 
-##PTrans_trials.php  
+## PTrans_trials.php  
 
 The picture transcription task (*PTrans.php*) also has a ‘trials’ php file and the contrast between ‘PTrans\_trials.php’ and ‘AX\_trials.php’ may be instructive.  The include file (‘PTrans\_params.inc’) defines \$stim_type as ‘image’, and \$resp_type as ‘text’, so the trials php file must have some different elements.
 
