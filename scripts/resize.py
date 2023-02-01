@@ -19,8 +19,8 @@ def get_dims(inpath):
     '''Get dimensions of image in inpath.'''
     dims = {'w': None, 'h': None}
     for dim in dims.keys():
-#        p = subprocess.run(['magick','identify',   # image magick version 7
-        p = subprocess.run(['identify',    # image magick version 6
+        p = subprocess.run(['magick','identify',   # image magick version 7
+#        p = subprocess.run(['identify',    # image magick version 6
                 '-format', f'%[fx:{dim}]', str(inpath)],
             check=True,
             capture_output=True
@@ -50,7 +50,7 @@ except FileNotFoundError:
 files = Path(directory).glob('*')
 
 for file in files:
-    
+   
     # is it an image file? - no -> continue
     try:
         dims = get_dims(file)  # can't get dimensions of a non-image file
@@ -59,8 +59,8 @@ for file in files:
 
 
     outfile = f'{file.stem}_768x512.jpg'
-#    p = subprocess.run( ['magick','convert',  f"{file}", '-resize', '768x512',  # version 7
-    p = subprocess.run( ['convert',  f"{file}", '-normalize', '-resize', sizestring,            # version 6
+    p = subprocess.run( ['magick','convert',  f"{file}", '-resize', '768x512',  # version 7
+#    p = subprocess.run( ['convert',  f"{file}", '-normalize', '-resize', sizestring,            # version 6
         '-gravity','Center', '-extent', sizestring, outfile],
         capture_output=True)
     if p.returncode != 0:

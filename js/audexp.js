@@ -233,10 +233,15 @@ function key_listener() { // define how to handle responses
 }
 
 function play_trial() {
+    var W;
+    
     rt = 0;
     if (resp_type=='text') {
 	response = $('#response');
 	if (response) { response.focus();}
+    }
+    if (W = $("#warn")) {
+         W.html("");
     }
     if (stim_type=='audio2') {
 	play_2_interval();  // play the first trial
@@ -262,7 +267,6 @@ function play_1_interval() {  // one audio file is played
 	$("#response2").html(option2[order[index]]);
     }
     
-    $("#warn").html("");
     play_audio(file1[order[index]]);
     timerid = setInterval( function () {
 	if (mediaduration>0) {  // wait for file to start playing
@@ -283,7 +287,6 @@ function movie_trial() {  // one video file is played
 	$("#response1").html(option1[order[index]]);
 	$("#response2").html(option2[order[index]]);
     }
-    $("#warn").html = "";
     play_movie(file1[order[index]]);
     timerid = setInterval( function () {   // measure the load time
 	if (mediaduration>0) {  // wait for file to start playing
@@ -301,7 +304,6 @@ function image_trial() {  // one image is shown in page object <canvas id="canva
 	$("#response1").html(option1[order[index]]);
 	$("#response2").html(option2[order[index]]);
     }
-    $("#warn").html("");
 
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
@@ -334,7 +336,6 @@ function text_trial() {  // text is displayed in object <span id="thetext">
         $("#response1").html(option1[order[index]]);
         $("#response2").html(option2[order[index]]);
     }
-    $("#warn").html("");
 
     var text = $("#thetext");
     text.html("");
@@ -358,7 +359,6 @@ function play_2_interval() {  // two audio files are played
 
     $("#f1").css({"backgroundColor":"yellow"});
     $("#f2").css({"backgroundColor":""});    
-    $("#warn").html("");
     play_audio(file1[order[index]]);
     ready_for_answer = false;
     timerid = setInterval( function() {  // wait for file 1 to load
@@ -438,43 +438,38 @@ function play_audio(filename) {
 }
 
 function play_movie(filename) {
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext("2d");
-    var top;
-    var left;
-    var height;
-    var width;
-    var scale;
-
+    const outputcanvas = document.getElementById("canvas");
+    const canvasctx = outputcanvas.getContext("2d");
+    var scale, cvsize = 500;
+    
     movie = document.createElement('video');  // using global variable 'movie'
     movie.id = 'themovie';
     movie.preload = 'auto';
     movie.src = filename;
     movie.visibility = 'hidden';
     movie.autoPlay = false;
-    movie.addEventListener('canplaythrough', function() {  //set dur when available
+    
+    movie.addEventListener("loadeddata", function() {
 	if (debug) {console.log('ready to play movie');}
-	scale = Math.min(canvas.width/movie.videoWidth, canvas.height/movie.videoHeight);
-        top = (canvas.height/2) - (movie.videoHeight/2)*scale;
-        left = (canvas.width/2) - (movie.videoWidth/2)*scale;
-        height = movie.videoHeight*scale;
-        width = movie.videoWidth*scale;
+	scale = Math.min(cvsize/movie.videoWidth, cvsize/movie.videoHeight);
+        outputcanvas.height = movie.videoHeight*scale;
+        outputcanvas.width = movie.videoWidth*scale;
         ready_for_answer = true;
 	mediaduration = movie.duration;
         start_time = new Date();
+	movie.play();
     });
     movie.addEventListener('play',() => {
 	function step() {
-	    ctx.drawImage(movie,left,top,width,height);
+	    canvasctx.drawImage(movie,0,0,outputcanvas.width,outputcanvas.height);
 	    requestAnimationFrame(step);
 	}
 	requestAnimationFrame(step);
     });
-    movie.addEventListener('pause', () => {
-	if (debug) {console.log('Pause Listener: movie paused');}
+    movie.addEventListener('ended', () => {
+	if (debug) {console.log('movie ended');}
 	movie.src="";  // this will blank the movie
     });
-    movie.play();
 }
 
 function startRecording() {

@@ -14,7 +14,7 @@ $info = system("sox -n -r $sf -c 1 temp/final_silence.wav trim 0.0 $final_silenc
 
 while ($line = <$in>) {
 
-    ($outfile,$imagefile, $imagedur, $soundfile, $snd_offset) = split(/,/,$line);
+    ($outfile,$imagefile, $imagedur, $soundfile, $snd_offset, $response_picture) = split(/,/,$line);
     print("make $outfile from $soundfile and $imagefile\n"); 
 
     # condition soundfile (set sampling rate, 1 channel, amplitude normalize)
@@ -26,13 +26,15 @@ while ($line = <$in>) {
     # add silence to front of sound to produce sound track of AV stimulus
     $info = system("sox temp/silence.wav temp/temp.wav temp/final_silence.wav temp/soundtrack.wav");
 
-    # make a movie of one image with a sound track  -- typical huge ffmpeg command
-    $info = system("ffmpeg -loop 1 -i \"$imagefile\" -i temp/soundtrack.wav ".
-		   "-shortest -fflags +shortest -c:v libx264 ".
-		   "-vf \"drawbox=c=\'#FFFFFF\':t=fill:enable=\'gte(t\,$imagedur)\', scale=$target_width:-2\" ". 
-		   "-pix_fmt yuv420p ".
+    # construct the concat input text file
+    open $fh, '>', "picture_input.txt" or die "Can't open picture_input.txt for writing: $!";
+    print $fh "file $imagefile\n";
+    print $fh "duration $imagedur\n";
+    print $fh "file $response_picture\n";
+    close $fh;
+
+    # concat pictures with duration specifications in "picture_input.txt" and add soundtrack
+    $info = system("ffmpeg -f concat -i picture_input.txt -i temp/soundtrack.wav ".
+                   "-c:v libx264 -vsync vfr -pix_fmt yuv420p ".
 		   "-c:a aac -max_interleave_delta 100M -y \"$outfile\" ");
 }
-#pad=ceil(iw/2)*2:ceil(ih/2)*2\" ". 
- 
-
