@@ -18,6 +18,7 @@ $params['n'] = 20;
 $params['subject'] = 20;
 $params['prID'] = 20;
 $params['trial'] = 5;
+$params['practice'] = 10;
 $params['list'] = 30;
 $params['file1'] = 80;
 $params['file2'] = 80; 
