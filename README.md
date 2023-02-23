@@ -14,7 +14,9 @@ The package includes several example experiment paradigms:
 
 5. **Video categorization** presents movie clips (mpeg4 files) in a two alternative forced choice (2AFC) paradigm.  Together with the helper scripts 'resize.py', 'make_cross_modal_mp4s', and ‘make_mp4s’ VCat.php can be used to implement the cross-modal priming paradigm by presenting a brief image timed to a sound file as a single downloaded movie, thus controlling the interstimulus interval between the audio and visual components of a cross-modal priming paradigm.  Of course, the script can collect responses to movies of any type.
 
-6. **Word list recording** is used to collect audio recordings from the participant’s computer microphone.  A list of words or sentences is presented visually one at a time, and the listener is requested to read the items aloud.  The script records for about 2 seconds per word, and then proceeds on to the next word.  Audio recordings are transmitted back to the experimenter’s server in a folder called "audio_recordings". 
+6. **Word list recording** is used to collect audio recordings from the participant’s computer microphone.  A list of words or sentences is presented visually one at a time, and the listener is requested to read the items aloud.  The script records for about 2 seconds per word, and then proceeds on to the next word.  Audio recordings are transmitted back to the experimenter’s server in a folder called "audio_recordings".
+
+7. **Consonant ID** presents audio files and offers four response buttons. This example illustrates the use of multiple response options (currently limited to four alternatives) and labels them with a unicode label (Devanagari in this case).
 
 
 ## Requirements
@@ -43,7 +45,7 @@ An experiment is implemented as an interlinked set of pages and supporting data 
 
 For example, the flow of the example Audio paired comparison experiment is:
 
-	AX.php  →  AX_trials.php → Questionnaire.php → finished.php
+	AX.php  →  AX_trials.php → questionnaire.php → finished.php
 
 **AX.php**  Introduction, instructions, consent form.
 User must provide a list number:  AX.php?list=1
@@ -52,7 +54,7 @@ User must provide a list number:  AX.php?list=1
 
 **process.php** is called in the background by *AX\_trials.php* to put data in *AX\_Data.csv*.  Data are written after every trial.
 
-**Questionnaire.php** - A short reusable/modifiable questionnaire.
+**questionnaire.php** - A short reusable/modifiable questionnaire.
 The page passes subject ID, prID, and \*.inc filename to *finished.php*.
 
 **finished.php** - Writes questionnaire data to the destination file specified in the parameters file - e.g. *AX\_Subjects.csv*, 
@@ -73,7 +75,7 @@ This pages also gives the subject their completion code number, or links to the 
 If you want to have trials broken into separate blocks, then you can do something like:
 
 	AX.php → AX_trials1.php → AX_rest.php → 
-		AX_trials2.php → Questionnaire.php → finished.php
+		AX_trials2.php → questionnaire.php → finished.php
 
 *AX\_rest.php* in this experiment flow might have instructions for the second block of trials, and you could specify different params.inc files for the different blocks (for instance *block1\_params.inc* and *block2\_params.inc*).
 
@@ -90,10 +92,11 @@ the ‘[x]’ portion of this name is specified in the PHP header of AX_trials.p
 
 4. **\$resp_type** -- what type of response to expect.
 One of:
-	- **2AFC**, two alternative forced choice
+	- **2AFC**, two alternative forced choice, the "m" or "z" key.
 	- **2AFC_labels**, two alternative forced choice with dynamic labels
 	- **rating**, Likert rating (a number from 1 to 7) 
 	- **text**, type into a text box
+	- **buttons**, click on a button 
 
 5. **\$stim_type** -- what type of stimulus will be presented.
 One of: 
@@ -112,11 +115,19 @@ The javascript routines in js/audexp.js recognize four kinds of possible respons
 
 If **\$resp_type is 2AFC** then the routines will expect listeners to respond by pressing either the “z” or “m” key on each trial. It is expected and required that the \_trials.php page which presents trials to have an html object <span id=”warn”></span> which will be used to convey warnings such as “you must press ‘m’ or ‘z’” if the participant presses some other key, or “that response was too fast” if the response is faster than some experimenter-specified threshold, or “that response was incorrect” if the stimulus list includes an array that specifies which button is correct for each trial.  In addition to having a span into which warnings can be presented, the _trials.php page should have some reminder about what the buttons mean. 
 
-The **\$resp_type 2AFC\_labels** is used to potentially present different labels on each trial. Unlike the 2AFC \$resp_type in which the response labels are hard coded on the \*\_trials.php page, the 2AFC_labels type expects and requires that the \*\_trials.php page has html objects <span id=”response1”></span> and <span id=”response2”></span>, and that the trial list has arrays option1[] and option2[] that contain the labels to be presented on each trial. One nice feature of using the 2AFC_labels response type is that the response labels are written into the output datafile.
+The **\$resp_type 2AFC\_labels** is used to potentially present different labels on each trial. Unlike the 2AFC \$resp_type in which the response labels are hard coded on the \*\_trials.php page, the 2AFC_labels type expects and requires that the \*\_trials.php page has html objects <span id=”response0”></span> and <span id=”response1”></span>, and that the trial list has arrays option1[] and option2[] that contain the labels to be presented on each trial. One nice feature of using the 2AFC_labels response type is that the response labels are written into the output datafile.
 
 The **rating \$resp_type** is used to give a Likert scale from 1 to 7.  
 
 In the **text \$resp_type** the key listening code in audexp.js will assume that there is a text input element with the name and id “response” on the page, and that this form element will collect the text being typed by the participant, and the key listener will record a response time for the first key press that the participant types, and will monitor for the <return> key to submit the answer and write data into the output data file.
+
+The **buttons \$resp_type** requires that your trials.php file have html elements with labels that are <span id="response0"> just as in the 'labels" response type above (see the example below).  The function process_response_click() is defined in audexp.js.
+
+```html
+	<button value="0" class="response" 
+		onclick="process_response_click(this)"> 
+		<span id="response0"></span></button>
+```
 
 ## Stimulus types
 
@@ -128,17 +139,16 @@ The **audio1 \$stim_type** is used when one audio file is presented, and **audio
 The php file that plays trials to subjects (in the example this is *AX_trials.php*) will look for a list of stimuli in the ‘js’ directory of the webpage.  A stimulus list may be as simple as the specification of an array called ‘file1’ that lists a media file, like an image, sound file, or video file.  In the example experiment, ‘AX\_list1.js’ defines five arrays - ‘file1, file2’ hold file names of the two audio files to be presented in a trial; ‘option1, option2’ hold labels that will be presented on the screen for the left and right response buttons, and ‘correct’ is an array that holds correct answers.  When the ‘correct’ array is defined feedback is given to subjects.
 
 	AX\_list1.js
-	file1[0]='sounds/type_0'; file2[0]='sounds/type_0'; option1[0]='same'; option2[0]='different'; correct[0]='same';
-	file1[1]='sounds/type_20'; file2[1]='sounds/type_0'; option1[1]='same'; option2[1]='different'; correct[1]='different';
-	file1[2]='sounds/type_40'; file2[2]='sounds/type_0'; option1[2]='same'; option2[2]='different'; correct[2]='different';
-	file1[3]='sounds/type_60'; file2[3]='sounds/type_0'; option1[3]='same'; option2[3]='different'; correct[3]='different';
-	file1[4]='sounds/type_80'; file2[4]='sounds/type_0'; option1[4]='same'; option2[4]='different'; correct[4]='different';
-
+	file1[0]='sounds/type_0'; file2[0]='sounds/type_0'; options[0]=[,'same']; options[1]=[,'different']; correct[0]='same';
+	file1[1]='sounds/type_20'; file2[1]='sounds/type_0'; options[0][1]='same'; options[1][1]='different'; correct[1]='different';
+	file1[2]='sounds/type_40'; file2[2]='sounds/type_0'; options[0][2]='same'; options[1][2]='different'; correct[2]='different';
+	file1[3]='sounds/type_60'; file2[3]='sounds/type_0'; options[0][3]='same'; options[1][3]='different'; correct[3]='different';
+	file1[4]='sounds/type_80'; file2[4]='sounds/type_0'; options[0][4]='same'; options[1][4]='different'; correct[4]='different';
 
 The ‘.js’ file was created from a spreadsheet (AX\_list1.csv) using the perl script *make\_list.prl*. Each row in the spreadsheet specifies one trial. The array names are given as column headers in the first line of the .csv.   These array names are not flexible at all - the javascript routines assume that there will be arrays called ‘file1’ and ‘file2’ for the two audio files presented in the AX trials (note that audio files are listed with a directory name where they can be found, and without a filename extension - .wav and .mp3 will be added based on the capability of the user’s browser).  The javascript routines for a response type “2AFC_labels” also assumes that there will be arrays named ‘option1’ and ‘option2’ to use as button labels, and if there is an array called ‘correct’ listeners in a 2AFC task will automatically be given feedback about the accuracy of their responses.
 
 	AX_list1.csv
-	file1,file2,option1,option2,correct
+	file1,file2,option[0],option[1],correct
 	sounds/type_0,sounds/type_0,same,different,same
 	sounds/type_20,sounds/type_0,same,different,different
 	sounds/type_40,sounds/type_0,same,different,different
@@ -201,11 +211,11 @@ A ‘click here to start’ button is defined to play the first trial. (Most bro
 	Type either 'z' or 'm'</p>
 
 
-Several aspects of the graphical interface are controlled dynamically by the js/audexp.js routines.  For example the <span id=’response1”> span is filled with the contents of the option1[] array for each trial.  Similarly the ‘f1’ span is highlighted in yellow while the first file is playing, the ‘key’ span gives feedback to the subject showing what button they pressed, and the ‘warn’ span is used to present warnings to the subject.  The names of these spans are not changeable - the audexp.js routines expect to find these particular spans in the .php file, based on the \$stim_type and \$resp_type given in the parameter file.  For instance, if the \$resp_type is ‘2AFC_labels’ then there must be spans called ‘response1’ and ‘response2’, and the stimulus list file must define arrays ‘option1’ and ‘option2’ of labels to put into these spans.
+Several aspects of the graphical interface are controlled dynamically by the js/audexp.js routines.  For example the <span id=’response1”> span is filled with the contents of the option1[] array for each trial.  Similarly the ‘f1’ span is highlighted in yellow while the first file is playing, the ‘key’ span gives feedback to the subject showing what button they pressed, and the ‘warn’ span is used to present warnings to the subject.  The names of these spans are not changeable - the audexp.js routines expect to find these particular spans in the .php file, based on the \$stim_type and \$resp_type given in the parameter file.  For instance, if the \$resp_type is ‘2AFC_labels’ then there must be spans called ‘response0’ and ‘response1’, and the stimulus list file must define arrays ‘option1’ and ‘option2’ of labels to put into these spans.
 
 	<table>
 	<tr><td>z</td> <td></td> <td>m</td></tr>
-	<tr><td><span id="response1"></span></td><td></td><td><span id="response2"></span></td></tr>
+	<tr><td><span id="response0"></span></td><td></td><td><span id="response1"></span></td></tr>
 	</table>
  
 	<hr>
@@ -219,7 +229,7 @@ Several aspects of the graphical interface are controlled dynamically by the js/
 
 Finally, *AX\_trials.php* defines two hidden forms.  The first is filled and submitted after each response by the js/audexp.js routine *key\_listener()* which monitors for key presses and processes them.  Note that the first part (AX) of the name of the include file (*AX\_params.inc*) is also passed to *process.php* in variable *\$n* which reads the include file in order to get the name of the datafile into which the data will be written.
 
-When all of the trials have been completed the *Questionnaire.php* is presented by submitting the ‘continue\_form’. The subject ID, list number, and param file identifier are passed as form parameters to the questionnaire.  A javascript function automatically submits this “continue\_form” after the last trial has been presented. 
+When all of the trials have been completed the *questionnaire.php* is presented by submitting the ‘continue\_form’. The subject ID, list number, and param file identifier are passed as form parameters to the questionnaire.  A javascript function automatically submits this “continue\_form” after the last trial has been presented. 
  
 	
 	<form method="POST" id="dataform" action="process.php?n=<?php echo $n; ?>">
@@ -236,7 +246,7 @@ When all of the trials have been completed the *Questionnaire.php* is presented 
       <input type="hidden" name="rt" />
 	</form>
  
-	<form method="POST" id="continue_form" action="Questionnaire.php">
+	<form method="POST" id="continue_form" action="questionnaire.php">
      <input type="hidden" name="subject" value=<?php echo $subj; ?> />
      <input type="hidden" name="prID" value=<?php echo $prID; ?> />
      <input type="hidden" name="list" value=<?php echo $list; ?> />
