@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   foreach($_POST as $key=>$value) {
     if (array_key_exists($key,$params)) {  // is key on the list of params?
        $maxlen = $params[$key];
-       if (preg_match("/[\w\s\+()\.-]{1,$maxlen}/",$value)) {  // is value well formed?
+       if (preg_match("/[\w\s\+()\.-]{1,$maxlen}/u",$value)) {  // is value well formed?
        	  array_push($formdata,$value);
 	} else {
 	  array_push($formdata,'bad_value');

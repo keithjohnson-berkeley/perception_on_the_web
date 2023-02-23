@@ -41,7 +41,7 @@ Type either 'z' or 'm'</p>
 
 <table>
 <tr><td>z</td> <td></td> <td>m</td></tr>
-<tr><td><span id="response1"></span></td><td></td><td><span id="response2"></span></td></tr>
+<tr><td><span id="response0"></span></td><td></td><td><span id="response1"></span></td></tr>
 </table>
 
 <hr>
@@ -68,7 +68,7 @@ Type either 'z' or 'm'</p>
       <input type="hidden" name="rt" />
 </form>
 
-<form method="POST" id="continue_form" action="Questionnaire.php">
+<form method="POST" id="continue_form" action="questionnaire.php">
      <input type="hidden" name="subject" value=<?php echo $subj; ?> />
      <input type="hidden" name="prID" value=<?php echo $prID; ?> />
      <input type="hidden" name="list" value=<?php echo $list; ?> />

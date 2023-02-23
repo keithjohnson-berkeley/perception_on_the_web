@@ -1,0 +1,5 @@
+subject,prID,practice,list,trial,soundfile,duration,loadtime,status,rt,response
+163f7017d6fa92,0,1,1,4,sounds/VD_AvishekThapa_072018_Wordlist1_019_kig_0,437,15,slow_response,5709,कीघ्
+163f7017d6fa92,0,1,1,5,sounds/VD_AvishekThapa_072018_Wordlist1_019_kaabh_0,458,15,early_response,1261,undefined
+163f7017d6fa92,0,1,1,6,sounds/VD_AvishekThapa_072018_Wordlist1_019_pukh_0,476,15,OK,1515,पुघ्
+163f7017d6fa92,0,1,1,7,sounds/VD_AvishekThapa_072018_Wordlist1_019_kaagh_0,555,15,OK,1790,काग्

@@ -1,6 +1,6 @@
-file1 , option1 , option2,correct 
-sounds/type_0.mp3,type,dype, dype 
-sounds/type_20.mp3,type,dype,dype;type
-sounds/type_40.mp3,type,dype,dype;type
-sounds/type_60.mp3,type,dype,dype;type
-sounds/type_80.mp3,type,dype,type
+file1 , options[0], options[1],correct 
+sounds/type_0,type,dype, dype 
+sounds/type_20,type,dype,dype;type
+sounds/type_40,type,dype,dype;type
+sounds/type_60,type,dype,dype;type
+sounds/type_80,type,dype,type

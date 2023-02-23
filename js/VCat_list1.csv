@@ -1,4 +1,4 @@
-file1,option1, option2
+file1,options[0], options[1]
 movies/movie1.mp4,word,nonword
 movies/movie2.mp4,word,nonword
 movies/movie3.mp4,word,nonword

@@ -14,8 +14,7 @@ var slow_response;  // what is a too slow response? Any thing longer than this i
 // global variables set in list.js files to define the trials of an experiment
 var file1 = new Array();  // audio or movies to play, images to show, text to present
 var file2 = new Array();   //  If a second audio file for 'audio2' stim_type
-var option1 = new Array();  // response labels for 'z' response in 'cat' experiment
-var option2 = new Array(); // response lables for 'm' response
+var options = new Array();  // response labels
 var correct = new Array(); // correct answers for feedback
 
 // global variables for keeping track of trial presentation
@@ -33,7 +32,7 @@ var rt;  // reaction time
 
 // globals used in presenting two audio files 'audio2' stim_type
 var wait_time;    // 2 interval isi time (file1 onset to file2 onset)
-var mediaduration;  // get duration of file 1, for 2 interval isi calculation
+var mediaduration;  // duration of the audio or video presented
 
 // globals used in dealing with media
 var timerid;   // a global timer object
@@ -46,7 +45,7 @@ var gumStream;
 var input;
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext;
-var duration = 2;  // 2 second default recording duration
+var recording_duration = 2;  // 2 second default recording duration
 
 // stim_type:
 //     'audio1' --  one interval audio stimulus
@@ -57,11 +56,11 @@ var duration = 2;  // 2 second default recording duration
 
 // resp_type:
 //     '2AFC' -- two alternative forced choice - must be 'z' or 'm' keys - labels hard coded in PHP file
-//     '2AFC_labels'  -- 2AFC 'z' and 'm' response keys, labels in option1,2 arrays.
+//     '2AFC_labels'  -- 2AFC 'z' and 'm' response keys, labels in options[0] and [1], 2  arrays.
 //     'rating' -- response must be a number between 1 and 7 
 //     'text' -- response is given in a form called 'dataform', input item 'response'
 //     'recording' -- response is spoken and we record it
-
+//     'buttons' -- respond by clicking on labelled buttons
 
 // load() -----------------
 // rflag: is true|false
@@ -84,84 +83,101 @@ function load(rflag,new_iti=2000,new_fast_response=200,new_slow_response=4000,ne
 
 function play_first_trial(stype,rtype,x) {  //  this is called from a "start" button
 
-    if (debug) {console.log("play_first_trial: ",stim_type," ",resp_type);}
-
     stim_type=stype;  // set the global stim and response types
     resp_type=rtype;
+
+    if (debug) {console.log("play_first_trial: ",stim_type," ",resp_type);}
     
     x.style.display = 'none';  // hide the button
     ready_for_answer = false;
-    if (resp_type != 'recording') {   // no key press response for spoken responses
+    if ((resp_type != 'recording') && (resp_type != 'buttons')) {   // no key press response for spoken or button responses 
 	key_listener();
     }
     play_trial();
 }
 
-function key_listener() { // define how to handle responses
+function feedback(ans = "not_ready") {  // show warnings for various types of problems - set the global "mystatus"
+    var W;
+    
+    if (ans == "not_ready") {
+	mystatus = "early_response";
+	if (W = $('#warn')) { 
+	    W.css({"backgroundColor": "red", "color":"white"});;
+	    W.html( " Please wait ");
+	}
+    } else if (ans == "wrong_key") {  // warn about using the wrong keys
+	mystatus = "unallowed_response";
+	var warning = '';
+	if (resp_type.includes('2AFC')) {
+	    warning = " Press either 'z' or 'm' ";
+	} else {
+	    warning = " Press a number between 1 and 7 ";
+	}
+	if (W = $("#warn")) {
+	    W.css({"backgroundColor":"red", "color":"white"});
+	    W.html(warning);
+	}
+    } else {
+	if (rt < fast_response) {  // check for overly fast responses
+	    mystatus = "fast_response";
+	    if (W = $('#warn')) { 
+		W.css({"backgroundColor": "red", "color":"white"});;
+		W.html( " That response was too fast ");
+	    }
+	    ready_for_answer= false;  // no more responses
+	}
+	
+	if (rt-mediaduration > slow_response) {  // check for overly slow responses
+	    mystatus = "slow_response";
+            if (W = $('#warn')) {
+		W.css({"backgroundColor": "red", "color":"white"});;
+		W.html( " That response was too slow ");
+            }
+	}
+	if (typeof correct != "undefined" && correct.length == file1.length) {
+	    if (correct[order[index]].includes(ans) != true) {
+		mystatus = "incorrect_response";
+		if (W = $('#warn')) {
+                    W.css({"backgroundColor": "red", "color":"white"});;
+                    W.html( " That response was incorrect ");
+		}
+	    }
+	}
+	$('#key').html(ans); // show the response
+	$('#key').css({"backgroundColor":"pink"});
+    }
+}
+   
+function key_listener() { // define how to handle keyboard responses
     document.addEventListener("keydown", function(e) {
 
 	var key = e.key.toLowerCase();
 	if (debug) {console.log("e.key= ",e.key, ", e.code= ",e.code, " key = ",key); }
-	var dur;
 	var ans;
-	var W;
 	
 	if (!ready_for_answer) {
-	    mystatus = "early_response";
-	    if (W = $('#warn')) { 
-		W.css({"backgroundColor": "red", "color":"white"});;
-		W.html( " Please wait ");
-	    }
+	    feedback("not_ready");
 	} else if (resp_type.includes('2AFC') || resp_type=='rating') {   // single key response types
 	    if ((resp_type=='rating' && (key >= 1 && key <= 7)) ||  // numbers 1-7
 		(resp_type.includes('2AFC') && (key=='z' || key=='m'))) { // 'z' or 'm'	
 		end_time = new Date();
 		ready_for_answer = false;
 		rt = end_time - start_time;  // this is in milliseconds
-		dur = mediaduration * 1000;  // convert to milliseconds
 
 		ans = key;  // ans will be compared to correct answer for feedback
 		if (resp_type=="2AFC_labels") {  // save the button labels
-		    if (key=='z') {  ans = option1[order[index]];}
-		    if (key=='m') {  ans = option2[order[index]];}
+		    if (key=='z') {  ans = options[0][order[index]];}
+		    if (key=='m') {  ans = options[1][order[index]];}
 		}
 
-		if (rt < fast_response) {  // check for overly fast responses
-		    mystatus = "fast_response";
-		    if (W = $('#warn')) { 
-			W.css({"backgroundColor": "red", "color":"white"});;
-			W.html( " That response was too fast ");
-		    }
-		    ready_for_answer= false;  // no more responses
-		}
-		   
-		if (rt-dur > slow_response) {  // check for overly slow responses
-		    mystatus = "slow_response";
-                    if (W = $('#warn')) {
-                        W.css({"backgroundColor": "red", "color":"white"});;
-                        W.html( " That response was too slow ");
-                    }
-		}
-
-		if (typeof correct != "undefined" && correct.length == file1.length) {
-		    if (correct[order[index]].includes(ans) != true) {
-			mystatus = "incorrect_response";
-			if (W = $('#warn')) {
-                            W.css({"backgroundColor": "red", "color":"white"});;
-                            W.html( " That response was incorrect ");
-			}
-		    }
-		}
-
-		$('#key').html(ans); // show the response
-		$('#key').css({"backgroundColor":"pink"});
+		feedback(ans);  // give feedback on correctness and rt
 
 		// ------- fill the data form ------------------
 		document.getElementById("dataform").response.value = ans; 
 		document.getElementById("dataform").mystatus.value = mystatus;
 		document.getElementById("dataform").rt.value = rt;
 		document.getElementById("dataform").trial.value = index;
-		document.getElementById("dataform").filedur.value = dur.toFixed(0);
+		document.getElementById("dataform").filedur.value = mediaduration.toFixed(0);
 		document.getElementById("dataform").loadtime.value = media_load_time.toFixed(0);
 		document.getElementById("dataform").file1.value = file1[order[index]];
 
@@ -170,33 +186,12 @@ function key_listener() { // define how to handle responses
 		    document.getElementById("dataform").file2.value = file2[order[index]];
 		}
 
-		if (stim_type== "video" || stim_type=="image") {
-		    if (movie) {
-			if (debug) {console.log("KeyLog: pausing movie");}
-			movie.pause();
-		    }
-		    const canvas = document.getElementById("canvas");
-		    if (canvas) {  // clear the screen if there is a canvas object
-			if (debug) {console.log("KeyLog: clear canvas");}
-			const context = canvas.getContext('2d');
-			context.clearRect(0, 0, canvas.width, canvas.height);
-		    }
-		}
+		if (stim_type== "video" || stim_type=="image") { clear_canvas(); }
 				
 		$("#dataform").trigger("submit");  // submit the form - write data
 		setTimeout(function () {finish()},iti);  // if not finished - go to next
 	    } else {  // warn about using the wrong keys
-		mystatus = "unallowed_response";
-		var warning = '';
-		if (resp_type.includes('2AFC')) {
-		    warning = " Press either 'z' or 'm' ";
-		} else {
-		    warning = " Press a number between 1 and 7 ";
-		}
-		if (W = $("#warn")) {
-		    W.css({"backgroundColor":"red", "color":"white"});
-		    W.html(warning);
-		}
+		feedback("wrong_key");
 	    }
 	} else if (resp_type=="text"){
 	    if (rt==0) {  // first time a key is pressed take the reaction time
@@ -209,64 +204,104 @@ function key_listener() { // define how to handle responses
                 document.getElementById("dataform").rt.value = rt;
                 document.getElementById("dataform").trial.value = index;
 		if (stim_type != 'image') {
-		    dur = mediaduration * 1000;  // convert to milliseconds
-		    document.getElementById("dataform").filedur.value = dur.toFixed(0);
+		    document.getElementById("dataform").filedur.value = mediaduration.toFixed(0);
 		    document.getElementById("dataform").loadtime.value = media_load_time.toFixed(0);
 		}
-		if (stim_type== "video" || stim_type=="image") {
-		    if (movie) {
-			movie.pause();
-		    }
-		    const canvas = document.getElementById("canvas");
-		    if (canvas) {  // clear the screen if there is a canvas object
-			const context = canvas.getContext('2d');
-			context.clearRect(0, 0, canvas.width, canvas.height);
-		    }
-		}
+		if (stim_type== "video" || stim_type=="image") { clear_canvas(); }
 				
                 document.getElementById("dataform").file1.value = file1[order[index]];
 		setTimeout(function () {finish()},iti); // if not finished - go to next
 	    }
 	} 
-
     })
+}
+
+function process_response_click(btn) {
+    var ans = btn.value;
+    
+    if (debug) {console.log("click = ", ans);}
+    if (!ready_for_answer) {
+	feedback("not_ready");
+    } else {
+	end_time = new Date();
+	ready_for_answer = false;
+	rt = end_time - start_time;  // this is in milliseconds
+
+	if (typeof options[ans][order[index]] != undefined) {
+	    ans = options[ans][order[index]];
+	}
+
+	if (debug) {console.log("value = ",btn.value," ans = ", ans);}
+	feedback(ans);  // give feedback on correctness and rt
+
+	// ------- fill the data form ------------------
+	document.getElementById("dataform").response.value = ans; 
+	document.getElementById("dataform").mystatus.value = mystatus;
+	document.getElementById("dataform").rt.value = rt;
+	document.getElementById("dataform").trial.value = index;
+	document.getElementById("dataform").filedur.value = mediaduration.toFixed(0);
+	document.getElementById("dataform").loadtime.value = media_load_time.toFixed(0);
+	document.getElementById("dataform").file1.value = file1[order[index]];
+
+	if (stim_type== "video" || stim_type=="image") { clear_canvas(); }
+
+	$("#dataform").trigger("submit");  // submit the form - write data
+	setTimeout(function () {finish()},iti);  // if not finished - go to next
+    }
+}
+
+function clear_canvas() {
+    if (movie) {
+	movie.pause();
+    }
+    const canvas = document.getElementById("canvas");
+    if (canvas) {  // clear the screen if there is a canvas object
+	const context = canvas.getContext('2d');
+	context.clearRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 function play_trial() {
     var W;
-    
+    var R;
+
+    if (debug) {console.log("index=",index,"  filename=",file1[order[index]]);}
+
+    mystatus= "OK";
     rt = 0;
     if (resp_type=='text') {
 	response = $('#response');
 	if (response) { response.focus();}
     }
-    if (W = $("#warn")) {
-         W.html("");
+    // clear the feedback html element
+    if (W = $("#warn")) { W.html(""); }
+
+    // fill response labels here
+    if ((typeof options[0] !== "undefined") && (R=$("#response0"))) {
+	R.html(options[0][order[index]]);
     }
-    if (stim_type=='audio2') {
-	play_2_interval();  // play the first trial
-    } else if (stim_type=='audio1') {
-	play_1_interval();
-    } else if (stim_type=='image') {
-	image_trial();
-    } else if (stim_type=='video') {
-	movie_trial();
-    } else if (stim_type=='text') {
-	text_trial();
+    if ((typeof options[1] !== "undefined") && (R=$("#response1"))) {
+	R.html(options[1][order[index]]);
     }
+    if ((typeof options[2] !== "undefined") && (R=$("#response2"))) {
+	R.html(options[2][order[index]]);
+    }
+    if ((typeof options[3] !== "undefined") && (R=$("#response3"))) {
+	R.html(options[3][order[index]]);
+    }
+
+    if (stim_type=='audio2') {	     play_2_interval(); }
+    else if (stim_type=='audio1') {  play_1_interval(); }
+    else if (stim_type=='image') {   image_trial(); }
+    else if (stim_type=='video') {   movie_trial(); }
+    else if (stim_type=='text') {    text_trial(); }
+    if (resp_type=='recording') { startRecording(); }
 }
 
 function play_1_interval() {  // one audio file is played
     mediaduration = 0;
     var count = 0;
     var loop = 5;  // interval in ms to check for file is loaded
-    mystatus= "OK";
-    if (debug) {console.log("index=",index,"  filename=",file1[order[index]], "  option1=",option1[order[index]]);}
-    if (resp_type=='2AFC_labels') {
-	$("#response1").html(option1[order[index]]);
-	$("#response2").html(option2[order[index]]);
-    }
-    
     play_audio(file1[order[index]]);
     timerid = setInterval( function () {
 	if (mediaduration>0) {  // wait for file to start playing
@@ -275,18 +310,12 @@ function play_1_interval() {  // one audio file is played
 	}
 	count += 1;
     }, loop);  // repeat this every x milliseconds
-    if (resp_type=='recording') { startRecording(); }
 }
 
 function movie_trial() {  // one video file is played
     mediaduration = 0;
     var count = 0;
     var loop = 5;  // interval in ms to check for file is loaded
-    mystatus= "OK";
-    if (resp_type=='2AFC_labels') {
-	$("#response1").html(option1[order[index]]);
-	$("#response2").html(option2[order[index]]);
-    }
     play_movie(file1[order[index]]);
     timerid = setInterval( function () {   // measure the load time
 	if (mediaduration>0) {  // wait for file to start playing
@@ -295,16 +324,9 @@ function movie_trial() {  // one video file is played
 	}
 	count += 1;
     }, loop);  // repeat this every x milliseconds
-    if (resp_type=='recording') { startRecording(); }
 }
 
 function image_trial() {  // one image is shown in page object <canvas id="canvas">
-    mystatus= "OK";
-    if (resp_type=='2AFC_labels') {
-	$("#response1").html(option1[order[index]]);
-	$("#response2").html(option2[order[index]]);
-    }
-
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     var oldimage = document.getElementById('theimage');
@@ -324,38 +346,21 @@ function image_trial() {  // one image is shown in page object <canvas id="canva
 	ctx.drawImage(image,left,top,width,height);
       };
     image.src = file1[order[index]];;
-    if (resp_type=='recording') { startRecording(); }
 }
-
 
 function text_trial() {  // text is displayed in object <span id="thetext">
     if (debug) {console.log("word: ",file1[order[index]], "  Index: ",index);}
     
-    mystatus= "OK";
-    if (resp_type=='2AFC_labels') {
-        $("#response1").html(option1[order[index]]);
-        $("#response2").html(option2[order[index]]);
-    }
-
     var text = $("#thetext");
     text.html("");
-
-    if (resp_type=='recording') { startRecording(); }
-
     text.html(file1[order[index]]);  
 }
-
 
 function play_2_interval() {  // two audio files are played
     mediaduration = 0;
     wait_time = 0;
     var count = 0;
     var loop = 5;
-    mystatus= "OK";
-    if (resp_type=='2AFC_labels') {
-	$("#response1").html(option1[order[index]]);
-	$("#response2").html(option2[order[index]]);
-    }
 
     $("#f1").css({"backgroundColor":"yellow"});
     $("#f2").css({"backgroundColor":""});    
@@ -363,7 +368,7 @@ function play_2_interval() {  // two audio files are played
     ready_for_answer = false;
     timerid = setInterval( function() {  // wait for file 1 to load
 	if (mediaduration>0) {  // this is updated when the file is loaded
-	    wait_time = (mediaduration * 1000) + isi; // wait duration + isi
+	    wait_time = mediaduration + isi; // wait duration + isi
 	    clearInterval(timerid);  // stop looping to get duration
 	    window.setTimeout( function() {  // present the second file, after wait_time pause
 		$("#f1").css({"backgroundColor":""});
@@ -431,7 +436,7 @@ function play_audio(filename) {
     aud.addEventListener('canplaythrough', function() {  //set dur when available
 	ready_for_answer=true;
 	start_time = new Date();  // start the clock on a reaction time
-	mediaduration = aud.duration;
+	mediaduration = aud.duration * 1000; // convert to milliseconds
     });
     document.body.appendChild(aud);
     aud.play();
@@ -455,7 +460,7 @@ function play_movie(filename) {
         outputcanvas.height = movie.videoHeight*scale;
         outputcanvas.width = movie.videoWidth*scale;
         ready_for_answer = true;
-	mediaduration = movie.duration;
+	mediaduration = movie.duration*1000;  // convert to milliseconds
         start_time = new Date();
 	movie.play();
     });
@@ -480,7 +485,7 @@ function startRecording() {
         if (debug) {console.log("getUserMedia() success, stream created, initializing Recorder.js ...");}
 
         audioContext = new AudioContext();
-        var numsamp = audioContext.sampleRate * duration;
+        var numsamp = audioContext.sampleRate * recording_duration;
         
         gumStream = stream;
         input = audioContext.createMediaStreamSource(stream);

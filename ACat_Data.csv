@@ -50,3 +50,8 @@ SubjID,block,trial,file1,filedur,loadtime,status,response,rt
 1635825399e039,0,1,2,sounds/type_80,569,5,incorrect_response,dype,1663
 1635825399e039,0,1,3,sounds/type_0,569,5,incorrect_response,type,873
 1635825399e039,0,1,4,sounds/type_20,569,5,OK,dype,940
+163f70b18daccc,0,1,0,sounds/type_20,569,15,OK,dype,1802
+163f70b18daccc,0,1,1,sounds/type_40,570,10,OK,type,2011
+163f70b18daccc,0,1,2,sounds/type_80,569,15,OK,type,941
+163f70b18daccc,0,1,3,sounds/type_0,569,15,early_response,undefined,589
+163f70b18daccc,0,1,4,sounds/type_60,568,15,OK,type,540

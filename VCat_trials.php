@@ -39,7 +39,7 @@ resp_type='<?php echo $resp_type; ?>', this)">Click here to start.</button></p>
 
 <table>
 <tr><td>z</td> <td></td> <td>m</td></tr>
-<tr><td><span id="response1">word</span></td><td></td><td><span id="response2">nonword</span></td></tr>
+<tr><td><span id="response0">word</span></td><td></td><td><span id="response1">nonword</span></td></tr>
 </table>
 <hr>
 <canvas id="canvas" width="768" height="512" /></canvas>
@@ -64,7 +64,7 @@ resp_type='<?php echo $resp_type; ?>', this)">Click here to start.</button></p>
       <input type="hidden" name="rt" />
 </form>
 
-<form method="POST" id="continue_form" action="Questionnaire.php">
+<form method="POST" id="continue_form" action="questionnaire.php">
      <input type="hidden" name="subject" value=<?php echo $subj; ?> />
      <input type="hidden" name="prID" value=<?php echo $prID; ?> />
      <input type="hidden" name="list" value=<?php echo $list; ?> />

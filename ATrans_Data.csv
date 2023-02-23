@@ -4,3 +4,5 @@ SubjID,block,trial,file1,filedur,loadtime,status,response,rt
 162f3e1760bfcb,1,3,sounds/type_80,569,35,OK,type,1476
 162f3e1760bfcb,1,4,sounds/type_40,570,0,OK,type,1354
 162f3fa3bc7c69,1,0,sounds/type_20,569,85,OK,test,3898
+163f70b49d9ec2,0,1,0,sounds/type_80,569,15,OK,type,7520
+163f70b49d9ec2,0,1,1,sounds/type_60,568,0,OK,dype,2631

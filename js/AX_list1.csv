@@ -1,4 +1,4 @@
-file1,file2,option1,option2,correct 
+file1,file2,options[0],options[1],correct 
 sounds/type_0,sounds/type_0,same,different,same
 sounds/type_20,sounds/type_0,same,different,different
 sounds/type_40,sounds/type_0,same,different,different

@@ -1,4 +1,9 @@
 #! /usr/bin/perl
+# This script reads a csv file with a list of trials to make into javascript arrays
+#   Each row is a trial, and the header line names the arrays.
+#   One column must be headed "file1"
+#   Other recognized columns are 'file2', 'correct', 'options[0]', 'options[1]'
+
 use strict;
 use File::Basename;
 
@@ -29,7 +34,11 @@ while ($line = <$in>) {
     $line =~ s/\s+//g;  # remove whitespace
     @elements = split(/,/,$line);
     for (my $j=0; $j <= $#header; $j++) {
-	 print $out $header[$j],"[$i]=\'",$elements[$j],"\'; ";
+	if ($i==0 && $header[$j] =~ "options") {  # first row of 2D array establish that it is 2D
+	    print $out $header[$j],"=[,\'",$elements[$j],"'];";
+	} else {
+	    print $out $header[$j],"[$i]=\'",$elements[$j],"\'; ";
+	}
     }
     print $out "\n";
     $i++;

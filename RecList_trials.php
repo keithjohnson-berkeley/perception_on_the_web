@@ -58,7 +58,7 @@ resp_type='<?php echo $resp_type; ?>', this)"> Click here to start.</button></p>
 <p style="font-size:12px">now on: <span id="count">1</span>/<span id="total"></span></p>
 </center>
 
-<form method="POST" id="continue_form" action="Questionnaire.php">
+<form method="POST" id="continue_form" action="questionnaire.php">
      <input type="hidden" name="subject" value=<?php echo $subj; ?> />
      <input type="hidden" name="prID" value=<?php echo $prID; ?> />
      <input type="hidden" name="list" value=<?php echo $list; ?> />
