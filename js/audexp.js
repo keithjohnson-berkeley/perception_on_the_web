@@ -5,6 +5,7 @@
 
 var debug = 1;  // 1 means print debugging messages in console, 0 means don't print messages
 
+
 // global variables set load() to control some aspects of the experiment
 var isi;  // interstimulus interval  for 'audio2' stim_type
 var iti;  // intertrial interval
@@ -82,12 +83,15 @@ function load(rflag,new_iti=2000,new_fast_response=200,new_slow_response=4000,ne
 }
 
 function play_first_trial(stype,rtype,x) {  //  this is called from a "start" button
-
+    var message;
+    
     stim_type=stype;  // set the global stim and response types
     resp_type=rtype;
 
     if (debug) {console.log("play_first_trial: ",stim_type," ",resp_type);}
-    
+    if (message = $('#starting_message')) {
+	message.html('');   // remove the starting message if there is one
+    }
     x.style.display = 'none';  // hide the button
     ready_for_answer = false;
     if ((resp_type != 'recording') && (resp_type != 'buttons')) {   // no key press response for spoken or button responses 
@@ -103,26 +107,24 @@ function feedback(ans = "not_ready") {  // show warnings for various types of pr
 	mystatus = "early_response";
 	if (W = $('#warn')) { 
 	    W.css({"backgroundColor": "red", "color":"white"});;
-	    W.html( " Please wait ");
+	    W.html( messages.wait);
 	}
     } else if (ans == "wrong_key") {  // warn about using the wrong keys
 	mystatus = "unallowed_response";
-	var warning = '';
-	if (resp_type.includes('2AFC')) {
-	    warning = " Press either 'z' or 'm' ";
-	} else {
-	    warning = " Press a number between 1 and 7 ";
-	}
 	if (W = $("#warn")) {
 	    W.css({"backgroundColor":"red", "color":"white"});
-	    W.html(warning);
+	    if (resp_type.includes('2AFC')) {
+		W.html(messages.unallowed_zm);
+	    } else {
+		W.html(messages.unallowed_17);
+	    }
 	}
     } else {
 	if (rt < fast_response) {  // check for overly fast responses
 	    mystatus = "fast_response";
 	    if (W = $('#warn')) { 
 		W.css({"backgroundColor": "red", "color":"white"});;
-		W.html( " That response was too fast ");
+		W.html(messages.fast);
 	    }
 	    ready_for_answer= false;  // no more responses
 	}
@@ -131,7 +133,7 @@ function feedback(ans = "not_ready") {  // show warnings for various types of pr
 	    mystatus = "slow_response";
             if (W = $('#warn')) {
 		W.css({"backgroundColor": "red", "color":"white"});;
-		W.html( " That response was too slow ");
+		W.html( messages.slow);
             }
 	}
 	if (typeof correct != "undefined" && correct.length == file1.length) {
@@ -139,7 +141,7 @@ function feedback(ans = "not_ready") {  // show warnings for various types of pr
 		mystatus = "incorrect_response";
 		if (W = $('#warn')) {
                     W.css({"backgroundColor": "red", "color":"white"});;
-                    W.html( " That response was incorrect ");
+                    W.html(messages.incorrect);
 		}
 	    }
 	}
@@ -277,16 +279,16 @@ function play_trial() {
     if (W = $("#warn")) { W.html(""); }
 
     // fill response labels here
-    if ((typeof options[0] !== "undefined") && (R=$("#response0"))) {
+    if ((typeof options[0][order[index]] != "undefined") && (R=$("#response0"))) {
 	R.html(options[0][order[index]]);
     }
-    if ((typeof options[1] !== "undefined") && (R=$("#response1"))) {
+    if ((typeof options[1][order[index]] != "undefined") && (R=$("#response1"))) {
 	R.html(options[1][order[index]]);
     }
-    if ((typeof options[2] !== "undefined") && (R=$("#response2"))) {
+    if ((typeof options[2][order[index]] != "undefined") && (R=$("#response2"))) {
 	R.html(options[2][order[index]]);
     }
-    if ((typeof options[3] !== "undefined") && (R=$("#response3"))) {
+    if ((typeof options[3][order[index]] != "undefined") && (R=$("#response3"))) {
 	R.html(options[3][order[index]]);
     }
 
@@ -437,9 +439,9 @@ function play_audio(filename) {
 	ready_for_answer=true;
 	start_time = new Date();  // start the clock on a reaction time
 	mediaduration = aud.duration * 1000; // convert to milliseconds
+	aud.play();
     });
     document.body.appendChild(aud);
-    aud.play();
 }
 
 function play_movie(filename) {
