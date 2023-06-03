@@ -11,6 +11,7 @@ var isi;  // interstimulus interval  for 'audio2' stim_type
 var iti;  // intertrial interval
 var fast_response;   // what is a too fast response? Any thing less than this in ms
 var slow_response;  // what is a too slow response? Any thing longer than this in ms
+var correctness;  // how to evaluate answers relative to the correct answer: "exact" or "includes"
 
 // global variables set in list.js files to define the trials of an experiment
 var file1 = new Array();  // audio or movies to play, images to show, text to present
@@ -70,7 +71,7 @@ var recording_duration = 2;  // 2 second default recording duration
 // new_isi: is the pause, in milliseconds, between file1 and file2 in audio2 stim_type
 // new_iti: is the pause, (after a response is entered) between trials
 
-function load(rflag,new_iti=2000,new_fast_response=200,new_slow_response=4000,new_isi=500) {  
+function load(rflag,new_iti=2000,new_fast_response=200,new_slow_response=4000,new_correctness="exact", new_isi=500) {  
     console.log("debug = ",debug);
     document.getElementById("total").innerHTML = file1.length;
     index = 0;
@@ -78,7 +79,8 @@ function load(rflag,new_iti=2000,new_fast_response=200,new_slow_response=4000,ne
     iti = new_iti;
     fast_response = new_fast_response;
     slow_response = new_slow_response;
-    shuffle_order(rflag);  // sequential order
+    correctness = new_correctness;
+    shuffle_order(rflag);  // set sequential order
     if (debug) {console.log("rflag = ",rflag, " iti = ",iti, " fast_response = ",fast_response)};
 }
 
@@ -137,13 +139,17 @@ function feedback(ans = "not_ready") {  // show warnings for various types of pr
             }
 	}
 	if (typeof correct != "undefined" && correct.length == file1.length) {
-	    if (correct[order[index]].includes(ans) != true) {
+	    if ((correctness === "exact" && correct[order[index]] !== ans) ||
+		(correctness === "includes" && correct[order[index]].includes(ans) != true)) {
 		mystatus = "incorrect_response";
 		if (W = $('#warn')) {
                     W.css({"backgroundColor": "red", "color":"white"});;
                     W.html(messages.incorrect);
 		}
 	    }
+	}
+	if (W = $('#rt_feedback')) {
+	    $('#rt_feedback').html("Reaction time: "+ (rt-1000));
 	}
 	$('#key').html(ans); // show the response
 	$('#key').css({"backgroundColor":"pink"});
@@ -285,10 +291,10 @@ function play_trial() {
     if ((typeof options[1][order[index]] != "undefined") && (R=$("#response1"))) {
 	R.html(options[1][order[index]]);
     }
-    if ((typeof options[2][order[index]] != "undefined") && (R=$("#response2"))) {
+    if ((typeof options[2] != "undefined") && (R=$("#response2"))) {
 	R.html(options[2][order[index]]);
     }
-    if ((typeof options[3][order[index]] != "undefined") && (R=$("#response3"))) {
+    if ((typeof options[3] != "undefined") && (R=$("#response3"))) {
 	R.html(options[3][order[index]]);
     }
 

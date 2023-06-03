@@ -21,9 +21,20 @@ if ($line !~ 'file1') {  # require at least file1
 	print "the first line must be a header with at least one entry \"file1\"";
 	exit();
 }
+
+# this line reseets the number of expected items - in cases where we have blocks of different # of trials.
+print $out "file1.Length=0;\n";
+
 @header = split(/,/,$line);  
 
-# then process the csv, writing the js file
+# this loop sets of the options arrays to expect 2D arrays
+for (my $j=0; $j <= $#header; $j++) {
+    if ($header[$j] =~ 'options') {
+	print $out $header[$j],"=[,\'\'];\n";
+    }
+}
+
+# Now read the remaining lines and fill the trials arrays
 my $i=0;
 while ($line = <$in>) {
     $line =~ s/\s+//g;  # remove whitespace

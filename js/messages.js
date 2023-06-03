@@ -18,4 +18,4 @@ var messages_nepali = {
 };
 
 // choose which language will be used
-var messages = messages_nepali;
+var messages = messages_english;
