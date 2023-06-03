@@ -106,6 +106,14 @@ One of:
 	- **video**, a movie file
 	- **text**, text in a box on the screen
 
+6. **\$iti** -- the intertrial interval in milliseconds (default: 2000)
+7. **\$fast_response** -- responses faster than this get a warning message (default: 200)
+8. **\$slow_response** -- responses slower than this get a warning message (default: 4000)
+9. **\$randomize** -- "true" or "false" present the trials in random order? (no default)
+10. **\$correctness** -- "'exact'" or "'includes'".  The latter allows answer "t" to be deemed correct if the correct value is "td".  Note that there are two layers of quotation marks.  (default: "'exact'").
+
+
+
 
 If you want a second list of trials for a second block of trials you could define two file list templates (e.g. \$template1 and \$template2) and instruct the second block to use the second template to find a different list of trials.
 
@@ -139,7 +147,10 @@ The **audio1 \$stim_type** is used when one audio file is presented, and **audio
 The php file that plays trials to subjects (in the example this is *AX_trials.php*) will look for a list of stimuli in the ‘js’ directory of the webpage.  A stimulus list may be as simple as the specification of an array called ‘file1’ that lists a media file, like an image, sound file, or video file.  In the example experiment, ‘AX\_list1.js’ defines five arrays - ‘file1, file2’ hold file names of the two audio files to be presented in a trial; ‘option1, option2’ hold labels that will be presented on the screen for the left and right response buttons, and ‘correct’ is an array that holds correct answers.  When the ‘correct’ array is defined feedback is given to subjects.
 
 	AX\_list1.js
-	file1[0]='sounds/type_0'; file2[0]='sounds/type_0'; options[0]=[,'same']; options[1]=[,'different']; correct[0]='same';
+	file1.Length=0;
+	options[0]=[,''];
+	options[1]=[,''];
+	file1[0]='sounds/type_0'; file2[0]='sounds/type_0'; options[0][0]='same'; options[0][1]='different'; correct[0]='same';
 	file1[1]='sounds/type_20'; file2[1]='sounds/type_0'; options[0][1]='same'; options[1][1]='different'; correct[1]='different';
 	file1[2]='sounds/type_40'; file2[2]='sounds/type_0'; options[0][2]='same'; options[1][2]='different'; correct[2]='different';
 	file1[3]='sounds/type_60'; file2[3]='sounds/type_0'; options[0][3]='same'; options[1][3]='different'; correct[3]='different';
@@ -148,7 +159,7 @@ The php file that plays trials to subjects (in the example this is *AX_trials.ph
 The ‘.js’ file was created from a spreadsheet (AX\_list1.csv) using the perl script *make\_list.prl*. Each row in the spreadsheet specifies one trial. The array names are given as column headers in the first line of the .csv.   These array names are not flexible at all - the javascript routines assume that there will be arrays called ‘file1’ and ‘file2’ for the two audio files presented in the AX trials (note that audio files are listed with a directory name where they can be found, and without a filename extension - .wav and .mp3 will be added based on the capability of the user’s browser).  The javascript routines for a response type “2AFC_labels” also assumes that there will be arrays named ‘option1’ and ‘option2’ to use as button labels, and if there is an array called ‘correct’ listeners in a 2AFC task will automatically be given feedback about the accuracy of their responses.
 
 	AX_list1.csv
-	file1,file2,option[0],option[1],correct
+	file1,file2,options[0],options[1],correct
 	sounds/type_0,sounds/type_0,same,different,same
 	sounds/type_20,sounds/type_0,same,different,different
 	sounds/type_40,sounds/type_0,same,different,different
@@ -196,9 +207,15 @@ The <head> portion of the php file refers to the library of javascript routines 
 
 When the <body> of the php file loads, some parameters are set by a load() function.  “true” to randomize the order of the trials, ‘1500’ milliseconds of pause between trials, response times of less than ‘200’ milliseconds will generate a warning to the subject about a ‘too fast’ response, and response times greater than 4 seconds (4000 ms) will generate a ‘too slow’ warning.  Finally, there will be a 500 millisecond pause between audio file1 and audio file2 in the AX pairs.
 
-A ‘click here to start’ button is defined to play the first trial. (Most browsers need a user click on the page to enable audio on the page.) The javascript functions load() and  play_first_trial() are defined in js/audexp.js.
+A ‘click here to start’ button is defined to play the first trial. (Most browsers need a user click on the page to enable audio on the page.) The javascript functions load() and  play_first_trial() are defined in js/audexp.js.  You can use parameters defined in the \_params.inc file instead of constants as parameters for load().
  
-	<body onload="load(true,1500,200,4000,500);">
+	<body onload="load(true,1500,200,4000,500);">   # or you could use variables defined in the params.inc file.
+	<body onload="load(<?php echo $randomize; ?>,    
+      		<?php echo $iti; ?>, 
+      		<?php echo $fast_response; ?>,
+      		<?php echo $slow_response; ?>,
+      		<?php echo $correctness; ?> )">
+
  	
 	<center>
 	<h2>detect audio differences</h2>
@@ -211,7 +228,7 @@ A ‘click here to start’ button is defined to play the first trial. (Most bro
 	Type either 'z' or 'm'</p>
 
 
-Several aspects of the graphical interface are controlled dynamically by the js/audexp.js routines.  For example the <span id=’response1”> span is filled with the contents of the option1[] array for each trial.  Similarly the ‘f1’ span is highlighted in yellow while the first file is playing, the ‘key’ span gives feedback to the subject showing what button they pressed, and the ‘warn’ span is used to present warnings to the subject.  The names of these spans are not changeable - the audexp.js routines expect to find these particular spans in the .php file, based on the \$stim_type and \$resp_type given in the parameter file.  For instance, if the \$resp_type is ‘2AFC_labels’ then there must be spans called ‘response0’ and ‘response1’, and the stimulus list file must define arrays ‘option1’ and ‘option2’ of labels to put into these spans.
+Several aspects of the graphical interface are controlled dynamically by the js/audexp.js routines.  For example the <span id=’response1”> span is filled with the contents of the option1[] array for each trial.  Similarly the ‘f1’ span is highlighted in yellow while the first file is playing, the ‘key’ span gives feedback to the subject showing what button they pressed, and the ‘warn’ span is used to present warnings to the subject.  The names of these spans are not changeable - the audexp.js routines expect to find these particular spans in the .php file, based on the \$stim_type and \$resp_type given in the parameter file.  For instance, if the \$resp_type is ‘2AFC_labels’ then there must be spans called ‘response0’ and ‘response1’, and the stimulus list file must define arrays ‘options[0]’ and ‘options[1]’ of labels to put into these spans.
 
 	<table>
 	<tr><td>z</td> <td></td> <td>m</td></tr>
@@ -221,7 +238,8 @@ Several aspects of the graphical interface are controlled dynamically by the js/
 	<hr>
 	<span id="f1">first</span> &nbsp &nbsp
 	<span id="f2">second</span> <br \>
-	<span id="key">#</span></p>
+	<span id="key">#</span>
+	<span id="rt_feedback">#</span></p>
  
 	<p><span id="warn"></span></p>
 	<p style="font-size:12px">now on: <span id="count">1</span>/	<span id="total"></span></p>
