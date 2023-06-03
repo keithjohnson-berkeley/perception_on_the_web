@@ -3,7 +3,7 @@
 
 'use strict';
 
-var debug = 1;  // 1 means print debugging messages in console, 0 means don't print messages
+var debug = 0;  // 1 means print debugging messages in console, 0 means don't print messages
 
 
 // global variables set load() to control some aspects of the experiment
@@ -148,11 +148,13 @@ function feedback(ans = "not_ready") {  // show warnings for various types of pr
 		}
 	    }
 	}
-	if (W = $('#rt_feedback')) {
-	    $('#rt_feedback').html("Reaction time: "+ (rt-1000));
+	if (W = $('#rt_feedback')) {  // page wants to give rt feedback
+	    W.html("Reaction time: "+ (rt-500));  // adjust for stimulus
 	}
-	$('#key').html(ans); // show the response
-	$('#key').css({"backgroundColor":"pink"});
+	if (W = $('#key')) {  // page wants us to show which answer was given 
+	    W.html(ans); // show the response
+	    W.css({"backgroundColor":"pink"});
+	}
     }
 }
    

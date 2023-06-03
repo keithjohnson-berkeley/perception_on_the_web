@@ -1,4 +1,7 @@
-file1[0]='sounds/type_0'; file2[0]='sounds/type_0'; options[0]=[,'same'];options[1]=[,'different'];correct[0]='same'; 
+file1.Length=0;
+options[0]=[,''];
+options[1]=[,''];
+file1[0]='sounds/type_0'; file2[0]='sounds/type_0'; options[0][0]='same'; options[1][0]='different'; correct[0]='same'; 
 file1[1]='sounds/type_20'; file2[1]='sounds/type_0'; options[0][1]='same'; options[1][1]='different'; correct[1]='different'; 
 file1[2]='sounds/type_40'; file2[2]='sounds/type_0'; options[0][2]='same'; options[1][2]='different'; correct[2]='different'; 
 file1[3]='sounds/type_60'; file2[3]='sounds/type_0'; options[0][3]='same'; options[1][3]='different'; correct[3]='different'; 

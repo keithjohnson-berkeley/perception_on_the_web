@@ -26,7 +26,11 @@
 <style> td {text-align:center; width: 90px;} </style>
 </head>
 
-<body onload="load(true,1500,200,4000);">
+<body onload="load(<?php echo $randomize; ?>, 
+      <?php echo $iti; ?>, 
+      <?php echo $fast_response; ?>,
+      <?php echo $slow_response; ?>,
+      <?php echo $correctness; ?> )">
 
 <center>
 <h2>Is the spoken utterance a word of English?</h2>
@@ -45,6 +49,7 @@ resp_type='<?php echo $resp_type; ?>', this)">Click here to start.</button></p>
 <canvas id="canvas" width="768" height="512" /></canvas>
 
 <p><span id="key">#</span></p>
+<p><span id="rt_feedback">#</span></p>
 
 <p><span id="warn"></span></p>
 <p style="font-size:12px">now on: <span id="count">1</span>/<span id="total"></span></p>

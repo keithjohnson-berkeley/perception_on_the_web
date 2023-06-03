@@ -1,4 +1,9 @@
-﻿file1[0]='sounds/VD_AvishekThapa_072018_Wordlist1_019_kaabh_0'; options[0]=[,'काप्'];options[1]=[,'काफ्'];options[2]=[,'काब्'];options[3]=[,'काभ्'];
+file1.Length=0;
+options[0]=[,''];
+options[1]=[,''];
+options[2]=[,''];
+options[3]=[,''];
+﻿file1[0]='sounds/VD_AvishekThapa_072018_Wordlist1_019_kaabh_0'; options[0][0]='काप्'; options[1][0]='काफ्'; options[2][0]='काब्'; options[3][0]='काभ्'; 
 ﻿file1[1]='sounds/VD_AvishekThapa_072018_Wordlist1_019_kaadh_0'; options[0][1]='कात्'; options[1][1]='काथ्'; options[2][1]='काद्'; options[3][1]='काध्'; 
 ﻿file1[2]='sounds/VD_AvishekThapa_072018_Wordlist1_019_kaagh_0'; options[0][2]='काक्'; options[1][2]='काख्'; options[2][2]='काग्'; options[3][2]='काघ्'; 
 ﻿file1[3]='sounds/VD_AvishekThapa_072018_Wordlist1_019_kig_0'; options[0][3]='कीक्'; options[1][3]='कीख्'; options[2][3]='कीग्'; options[3][3]='कीघ्'; 
